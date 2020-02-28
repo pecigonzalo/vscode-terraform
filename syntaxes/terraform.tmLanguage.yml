@@ -1,0 +1,249 @@
+---
+scopeName: "source.terraform"
+patterns:
+  - include: "#hcl"
+
+repository:
+  # BASIC
+  basic:
+    patterns:
+      - include: "#comments"
+      - include: "#block"
+      - include: "#constants"
+      - include: "#numbers"
+
+  comments:
+    comment: Comments
+    name: comment.line.hcl
+    begin: "#|//"
+    end: $\n?
+    captures:
+      "0": { name: punctuation.definition.comment.hcl }
+
+  block:
+    comment: Block comments
+    name: comment.block.hcl
+    begin: /\*
+    end: \*/
+    captures:
+      "0": { name: punctuation.definition.comment.hcl }
+
+  constants:
+    comment: Language constants (true, false, null)
+    name: constant.language.hcl
+    match: \b(true|false|null)\b
+
+  numbers:
+    comment: Numbers
+    name: constant.numeric.hcl
+    match: \b([0-9]+)(.[0-9]+)?([eE][0-9]+)?\b
+
+  # HCL
+  hcl:
+    patterns:
+      - include: "#basic"
+      - include: "#nested_blocks"
+      - include: "#quoted_block_labels"
+      - include: "#attributes_definitions"
+      - include: "#keywords"
+
+  nested_blocks:
+    comment: Nested Blocks
+    name: meta.block.hcl
+    begin: "{"
+    beginCaptures:
+      "0": { name: punctuation.definition.block.hcl }
+    end: "}"
+    endCaptures:
+      "0": { name: punctuation.definition.block.hcl }
+    patterns:
+      - include: "#hcl"
+
+  quoted_block_labels:
+    comment: Quoted Block Labels
+    match: '(")([^"]+)(")'
+    captures:
+      "1": { name: string.hcl punctuation.definition.string.begin.hcl }
+      "2": { name: string.value.hcl }
+      "3": { name: string.hcl punctuation.definition.string.end.hcl }
+
+  attributes_definitions:
+    comment: Attribute Definitions
+    name: meta.attr.hcl
+    begin: '(\w+)\s*(=)\s*'
+    beginCaptures:
+      "1": { name: variable.other.assignment.hcl }
+      "2": { name: keyword.operator.hcl }
+    end: "$"
+    patterns:
+      - include: "#hclexpr"
+
+  keywords:
+    comment: Keywords
+    match: '[-\w]+'
+    captures:
+      "0": { name: keyword.other.hcl }
+
+  # HCL Expression
+  hclexpr:
+    patterns:
+      - include: "#function_calls"
+      - include: "#variables_and_attributes"
+      - include: "#heredoc_template"
+      - include: "#string_template"
+      - include: "#operator"
+      - include: "#parenthesis"
+      - include: "#tuple_constructor"
+      - include: "#object_constructor"
+
+  function_calls:
+    comment: Function Calls
+    begin: ([-\w]+)(\()
+    beginCaptures:
+      "1": { name: support.function.builtin.hcl }
+      "2": { name: keyword.other.section.begin.hcl }
+    end: (\))
+    endCaptures:
+      "1": { name: keyword.other.section.end.hcl }
+    patterns:
+      - include: "#hclexpr"
+
+  variables_and_attributes:
+    comment: Variables and Attribute Names
+    match: '[-\w]+'
+    captures:
+      "0": { name: variable.other.hcl }
+
+  heredoc_template:
+    comment: Heredoc Templates
+    begin: (?>\s*<<(\w+))
+    beginCaptures:
+      "0": { name: punctuation.definition.string.begin.hcl }
+      "1": { name: keyword.operator.heredoc.hcl }
+    end: ^\s*\1$
+    endCaptures:
+      "0":
+        {
+          name: punctuation.definition.string.end.hcl keyword.operator.heredoc.hcl,
+        }
+    patterns:
+      - include: "#hcltemplate"
+
+  string_template:
+    comment: String Templates
+    begin: \"
+    beginCaptures:
+      "0": { name: string.hcl punctuation.definition.string.begin.hcl }
+    end: \"
+    endCaptures:
+      "0": { name: string.hcl punctuation.definition.string.end.hcl }
+    patterns:
+      - include: "#hcltemplate"
+      - match: '(^"|$\{|%\{)+'
+        name: "string.quoted.double.hcl"
+
+  operator:
+    comment: Operators
+    match: '(!=|==|>=|<=|&&|\|\||[-+*/%<>!?:])'
+    captures:
+      "0": { name: keyword.operator.hcl }
+
+  parenthesis:
+    comment: Parentheses
+    begin: '\('
+    beginCaptures:
+      "0": { name: meta.brace.round.hcl }
+    end: '\)'
+    endCaptures:
+      "0": { name: meta.brace.round.hcl }
+    patterns:
+      - include: "#hclexpr"
+
+  tuple_constructor:
+    comment: Tuple Constructor
+    begin: '\['
+    beginCaptures:
+      "0": { name: meta.brace.square.hcl }
+    end: '\]'
+    endCaptures:
+      "0": { name: meta.brace.square.hcl }
+    patterns:
+      - match: "(for|in)"
+        captures:
+          "0": { name: keyword.control.hcl }
+      - include: "#hclexpr"
+
+  object_constructor:
+    comment: Object Constructor
+    begin: '\{'
+    beginCaptures:
+      "0": { name: meta.brace.curly.hcl }
+    end: '\}'
+    endCaptures:
+      "0": { name: meta.brace.curly.hcl }
+    patterns:
+      - match: "(for|in)"
+        captures:
+          "0": { name: keyword.control.hcl }
+      - match: '(=>|\.\.\.)'
+        captures:
+          "0": { name: keyword.operator.hcl }
+      - include: "#hclexpr"
+
+  # HCL Template
+  hcltemplate:
+    patterns:
+      - include: "#interpolation_sequences"
+      - include: "#control_sequences"
+
+  interpolation_sequences:
+    comment: Interpolation Sequences
+    name: meta.interp.hcltemplate
+    begin: '[^\$]?(\$\{~?)'
+    beginCaptures:
+      "1": { name: entity.tag.embedded.start.hcltemplate }
+    end: "~?}"
+    endCaptures:
+      "0": { name: entity.tag.embedded.end.hcltemplate }
+    patterns:
+      - include: "#hclexpr"
+
+  control_sequences:
+    comment: Control Sequences
+    name: meta.control.hcltemplate
+    begin: '[^\%]?(\%\{~?)'
+    beginCaptures:
+      "1": { name: entity.tag.embedded.start.hcltemplate }
+    end: "~?}"
+    endCaptures:
+      "0": { name: entity.tag.embedded.end.hcltemplate }
+    patterns:
+      - include: "#templateif"
+      - include: "#templatefor"
+      - include: "#templatesimplekw"
+
+  templateif:
+  name: meta.templateif.hcltemplate
+  begin: '(if)\s*'
+  beginCaptures:
+    "1": { name: keyword.control.hcltemplate }
+  end: '(?=~?\})'
+  patterns:
+    - include: "#hclexpr"
+
+  templatefor:
+    name: meta.templatefor.hcltemplate
+    begin: '(for)\s*(\w+)\s*(,\s*(\w+)\s*)?(in)'
+    beginCaptures:
+      "1": { name: keyword.control.hcltemplate }
+      "2": { name: variable.other.hcl }
+      "4": { name: variable.other.hcl }
+      "5": { name: keyword.control.hcltemplate }
+    end: '(?=~?\})'
+    patterns:
+      - include: "#hclexpr"
+
+  templatesimplekw:
+    match: (else|endif|endfor)
+    captures:
+      "0": { name: keyword.control.hcl }

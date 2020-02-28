@@ -20,6 +20,7 @@
   },
   "scripts": {
     "vscode:prepublish": "yarn run compile",
+    "lang": "js-yaml syntaxes/terraform.tmLanguage.yml > syntaxes/terraform.tmLanguage.json",
     "compile": "tsc -p ./",
     "lint": "eslint src --ext ts",
     "watch": "tsc -watch -p ./",
@@ -27,7 +28,6 @@
     "test": "node ./out/test/runTest.js"
   },
   "extensionDependencies": [],
-  "dependencies": {},
   "devDependencies": {
     "@types/glob": "^7.1.1",
     "@types/mocha": "^7.0.1",
@@ -56,7 +56,7 @@
     "grammars": [{
       "language": "terraform",
       "scopeName": "source.terraform",
-      "path": "./syntaxes/terraform.tmLanguage"
+      "path": "./syntaxes/terraform.tmLanguage.json"
     }]
-  },
+  }
 }
