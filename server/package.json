@@ -7,7 +7,7 @@
     "name": "Gonzalo Peci"
   },
   "engines": {
-    "vscode": "^1.42.0"
+    "node": "*"
   },
   "repository": {
     "type": "git",
@@ -19,8 +19,5 @@
   },
   "dependencies": {
     "vscode-languageserver": "^6.1.1"
-  },
-  "devDependencies": {
-    "vscode": "^1.1.36"
   }
 }

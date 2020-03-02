@@ -5,7 +5,8 @@ import { workspace, ExtensionContext, DocumentFilter } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
 
 
-const documentSelector: DocumentFilter = { language: "terraform", scheme: "file" };
+let client: LanguageClient;
+
 
 export function activate(context: ExtensionContext) {
 
@@ -18,7 +19,7 @@ export function activate(context: ExtensionContext) {
     // );
 
     // The server is implemented in node
-    let serverModule = context.asAbsolutePath(path.join('server', 'server.js'));
+    let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
     // The debug options for the server
     let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
 
@@ -47,4 +48,9 @@ export function activate(context: ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() { }
+export function deactivate() {
+    if (!client) {
+        return undefined;
+    }
+    return client.stop();
+}
