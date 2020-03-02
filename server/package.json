@@ -13,11 +13,8 @@
     "type": "git",
     "url": "https://github.com/pecigonzalo/vscode-terraform.git"
   },
-  "scripts": {
-    "update-vscode": "vscode-install",
-    "postinstall": "vscode-install"
-  },
+  "scripts": {},
   "dependencies": {
-    "vscode-languageserver": "^6.1.1"
+    "vscode-languageserver": "^5.2.1"
   }
 }
