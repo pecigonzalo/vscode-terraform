@@ -1,7 +1,7 @@
 'use strict';
 
 import * as path from 'path';
-import { workspace, ExtensionContext, DocumentFilter } from 'vscode';
+import { workspace, ExtensionContext } from 'vscode';
 import { LanguageClient, LanguageClientOptions, ServerOptions, TransportKind } from 'vscode-languageclient';
 
 
@@ -14,14 +14,10 @@ export function activate(context: ExtensionContext) {
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "vscode-terraform" is now active!');
 
-    // context.subscriptions.push(
-    //     vscode.languages.registerDocumentFormattingEditProvider(documentSelector, new DocumentFormattingEditProvider())
-    // );
-
     // The server is implemented in node
     let serverModule = context.asAbsolutePath(path.join('server', 'out', 'server.js'));
     // The debug options for the server
-    let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
+    let debugOptions = { execArgv: ["--nolazy", "--inspect=6010"] };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
@@ -34,13 +30,13 @@ export function activate(context: ExtensionContext) {
     let clientOptions: LanguageClientOptions = {
         documentSelector: [{ scheme: 'file', language: 'terraform' }],
         synchronize: {
-            configurationSection: 'terraformLanguageServer',
+            configurationSection: 'terraform.languageServer',
             fileEvents: workspace.createFileSystemWatcher('**/*.tf')
         }
     };
 
     // Create the language client and start the client.
-    let disposable = new LanguageClient('terraformLanguageServer', 'Terraform Language Server', serverOptions, clientOptions).start();
+    let disposable = new LanguageClient('terraform.languageServer', 'Terraform Language Server', serverOptions, clientOptions).start();
 
     // Push the disposable to the context's subscriptions so that the
     // client can be deactivated on extension deactivation

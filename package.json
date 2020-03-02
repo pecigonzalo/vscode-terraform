@@ -22,7 +22,7 @@
     "vscode:prepublish": "cd client && yarn run update-vscode && cd .. && yarn run compile",
     "postinstall": "cd client && yarn install && cd ../server && yarn install && cd ..",
     "compile": "tsc --build",
-    "watch": "tsc --watch --build",
+    "watch": "tsc --build --watch",
     "lang": "js-yaml syntaxes/terraform.tmLanguage.yml > syntaxes/terraform.tmLanguage.json"
   },
   "activationEvents": [
